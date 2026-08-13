@@ -7,7 +7,7 @@ export type Command = {
 export const commands: Command[] = [
 	{
 		name: "/model",
-		description: "Select model/provider"
+		description: "Select model provider"
 	},
 	{
 		name: "/login",
@@ -16,6 +16,18 @@ export const commands: Command[] = [
 	{
 		name: "/quit",
 		description: "Exit the session"
+	},
+	{
+		name: "/mcp",
+		description: "Setup mcp"
+	},
+	{
+		name: "/settings",
+		description: "change settings"
+	},
+	{
+		name: "/session",
+		description: "change session"
 	},
 ]
 

@@ -23,6 +23,16 @@ export const InputPrompt = () => {
 			return
 		}
 
+		if (key.ctrl && input === 'c') {
+			if (commandmenu) {
+				setCommandMenu(false)
+				setValue("")
+			} else {
+				exit()
+			}
+			return
+		}
+
 		if (commandmenu && key.delete) {
 			setValue(prev => prev.slice(0, -1));
 
@@ -66,7 +76,7 @@ export const InputPrompt = () => {
 					</>
 				)}
 			</Box >
-			{commandmenu && <CommandMenu />}
+			{commandmenu && <CommandMenu inputText={value} />}
 
 			<Box paddingX={1}>
 				<Text dimColor> opus 4.5 </Text>
