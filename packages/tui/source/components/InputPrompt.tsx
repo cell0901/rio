@@ -1,22 +1,58 @@
 import { useState } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import { CommandMenu } from './command/index.js';
+import { PickerMenu } from './PickerMenu.js';
+import { ToastStack } from './toasts/ToastStack.js';
+import type { PickerOption } from './command/commands.js';
 
 const PROMPT = "> "
+
+type PickerState = {
+	title: string
+	options: PickerOption[]
+	onSelect: (value: string) => void
+}
 
 export const InputPrompt = () => {
 	const { exit } = useApp();
 	const [value, setValue] = useState('');
 	const [commandmenu, setCommandMenu] = useState(false)
+	const [picker, setPicker] = useState<PickerState | null>(null)
+	const [model, setModel] = useState("opus 4.5")
 
-	// Must run during render — setCursorPosition only stores a ref;
-	// Ink reads it in useInsertionEffect at commit. useLayoutEffect is too late
-	// and leaves the cursor one character behind.
+	const closeMenu = () => {
+		setCommandMenu(false)
+		setValue("")
+	}
+
+	const openPicker = (title: string, options: PickerOption[], onSelect: (value: string) => void) => {
+		setPicker({
+			title,
+			options,
+			onSelect: selected => {
+				onSelect(selected)
+				const match = options.find(o => o.value === selected)
+				if (match) {
+					setModel(match.label)
+				}
+			},
+		})
+	}
+
 	useInput((input, key) => {
-		if (key.return || key.escape) {
-			exit();
-			return;
+		if (picker || commandmenu) {
+			if (key.return || key.escape) {
+				return
+			}
+		} else if (key.return || key.escape) {
+			exit()
+			return
 		}
+
+		if (picker) {
+			return
+		}
+
 		if (input == "/") {
 			setCommandMenu(true)
 			setValue(prev => prev + input);
@@ -25,8 +61,7 @@ export const InputPrompt = () => {
 
 		if (key.ctrl && input === 'c') {
 			if (commandmenu) {
-				setCommandMenu(false)
-				setValue("")
+				closeMenu()
 			} else {
 				exit()
 			}
@@ -36,14 +71,12 @@ export const InputPrompt = () => {
 		if (commandmenu && key.delete) {
 			setValue(prev => prev.slice(0, -1));
 
-			if (value.slice(-1) == "/" && value.length == 1) {
+			if (value.slice(-1) == "/" && value.length == 1) { // so it doesnt cloess on multiple slash like ///
 				setCommandMenu(false)
 			}
 			return
 		}
 
-		// Before generic input — backspace is `\x7f` and would otherwise
-		// be appended then sliced (two updates per keypress).
 		if (key.backspace || key.delete) {
 			setValue(prev => (prev.length > 0 ? prev.slice(0, -1) : prev));
 			return;
@@ -62,29 +95,41 @@ export const InputPrompt = () => {
 				borderRight={false}
 				borderColor="gray"
 			>
+				<ToastStack />
 				{value ? (
 					<Text>
 						{PROMPT}
-						{value}<Text inverse> </Text></Text> // uses ANSI to conver the bg opp to terminal bg color
+						{value}<Text inverse> </Text></Text>
 				) : (
-					<>
-						<Text color="gray">
-							{PROMPT}
-							<Text inverse>E</Text>
-							xplain the code base
-						</Text>
-					</>
+					<Text color="gray">
+						{PROMPT}
+						<Text inverse>E</Text>
+						xplain the code base
+					</Text>
 				)}
-			</Box >
-			{commandmenu && <CommandMenu inputText={value} />}
+			</Box>
+			{picker && (
+				<PickerMenu
+					title={picker.title}
+					options={picker.options}
+					onSelect={picker.onSelect}
+					onClose={() => setPicker(null)}
+				/>
+			)}
+			{commandmenu && !picker && (
+				<CommandMenu
+					inputText={value}
+					onClose={closeMenu}
+					onOpenPicker={openPicker}
+					exit={exit}
+				/>
+			)}
 
 			<Box paddingX={1}>
-				<Text dimColor> opus 4.5 </Text>
+				<Text dimColor>{model}</Text>
 				<Text>• </Text>
 				<Text bold>app/web/</Text>
 			</Box>
 		</>
 	)
 }
-
-
