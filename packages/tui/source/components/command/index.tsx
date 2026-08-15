@@ -1,35 +1,16 @@
 import { Box, Text, useInput } from "ink"
 import { ScrollList } from "ink-scroll-list"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { filterCommands } from "./filter-command.js"
-import { useToast } from "../toasts/Toast-provider.js"
-import type { CommandContext, PickerOption } from "./commands.js"
+import { Command } from "./types.js"
 
-type CommandMenuProps = {
-	inputText: string
-	onClose: () => void
-	onOpenPicker: (title: string, options: PickerOption[], onSelect: (value: string) => void) => void
-	exit: () => void
-}
 
-export function CommandMenu({ inputText, onClose, onOpenPicker, exit }: CommandMenuProps) {
+export function CommandMenu({ inputText, onSelect }: { inputText: string, onSelect: (item: Command) => void }) {
 	const listRef = useRef(null)
 	const [selectedIndex, setSelectedIndex] = useState(0)
 	const items = filterCommands(inputText)
-	const { show } = useToast()
 
 	const maxNameLength = Math.max(...items.map(item => item.name.length), 0) + 8
-
-	useEffect(() => {
-		setSelectedIndex(prev => Math.min(prev, Math.max(items.length - 1, 0)))
-	}, [items.length, inputText])
-
-	const ctx: CommandContext = {
-		show,
-		closeMenu: onClose,
-		openPicker: onOpenPicker,
-		exit,
-	}
 
 	useInput((_input, key) => {
 		if (key.upArrow) {
@@ -38,21 +19,10 @@ export function CommandMenu({ inputText, onClose, onOpenPicker, exit }: CommandM
 		if (key.downArrow) {
 			setSelectedIndex(prev => Math.min(prev + 1, items.length - 1))
 		}
-		if (key.return) {
-			const selected = items[selectedIndex]
-			if (!selected) {
-				return
-			}
-			if (selected.action) {
-				selected.action(ctx)
-			} else {
-				show(`${selected.name} — not implemented yet`, "info")
-				onClose()
-			}
+		if (key.return && items[selectedIndex]) {
+			onSelect(items[selectedIndex]) // selected command gets populated to InputPrompt comp
 		}
-		if (key.escape) {
-			onClose()
-		}
+
 	})
 
 	if (items.length === 0) {

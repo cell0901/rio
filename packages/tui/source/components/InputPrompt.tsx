@@ -1,59 +1,46 @@
 import { useState } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
 import { CommandMenu } from './command/index.js';
-import { PickerMenu } from './PickerMenu.js';
-import { ToastStack } from './toasts/ToastStack.js';
-import type { PickerOption } from './command/commands.js';
+import { Submenu } from './SubMenu.js';
+import { Command, SubMenuOption } from './command/types.js';
 
 const PROMPT = "> "
-
-type PickerState = {
-	title: string
-	options: PickerOption[]
-	onSelect: (value: string) => void
-}
 
 export const InputPrompt = () => {
 	const { exit } = useApp();
 	const [value, setValue] = useState('');
 	const [commandmenu, setCommandMenu] = useState(false)
-	const [picker, setPicker] = useState<PickerState | null>(null)
-	const [model, setModel] = useState("opus 4.5")
+	const [submenu, setSubmenu] = useState<{ title: string, options: SubMenuOption[], onSelect: (value: string) => void } | null>(null)
 
-	const closeMenu = () => {
-		setCommandMenu(false)
-		setValue("")
-	}
-
-	const openPicker = (title: string, options: PickerOption[], onSelect: (value: string) => void) => {
-		setPicker({
-			title,
-			options,
-			onSelect: selected => {
-				onSelect(selected)
-				const match = options.find(o => o.value === selected)
-				if (match) {
-					setModel(match.label)
-				}
-			},
-		})
+	function onHandleSelect(item: Command) {
+		setCommandMenu(false) // close the commandmenu
+		setValue('')
+		if (!item.action) return
+		if (item.action.kind === 'run') {
+			item.action.run()
+		} else {
+			setSubmenu({ title: item.name, options: item.action.options, onSelect: item.action.onSelect })
+		}
 	}
 
 	useInput((input, key) => {
-		if (picker || commandmenu) {
-			if (key.return || key.escape) {
-				return
+		if (key.escape) {
+			if (commandmenu) {
+				setCommandMenu(false)
 			}
-		} else if (key.return || key.escape) {
-			exit()
+			if (submenu) {
+				setSubmenu(null)
+			}
+			return
+		}
+		if (key.return) {
+			if (commandmenu) {
+				setCommandMenu(false)
+			}
 			return
 		}
 
-		if (picker) {
-			return
-		}
-
-		if (input == "/") {
+		if (input == "/" && !submenu) {
 			setCommandMenu(true)
 			setValue(prev => prev + input);
 			return
@@ -61,12 +48,14 @@ export const InputPrompt = () => {
 
 		if (key.ctrl && input === 'c') {
 			if (commandmenu) {
-				closeMenu()
+				setCommandMenu(false)
+				setValue("")
 			} else {
 				exit()
 			}
 			return
 		}
+
 
 		if (commandmenu && key.delete) {
 			setValue(prev => prev.slice(0, -1));
@@ -95,7 +84,6 @@ export const InputPrompt = () => {
 				borderRight={false}
 				borderColor="gray"
 			>
-				<ToastStack />
 				{value ? (
 					<Text>
 						{PROMPT}
@@ -108,25 +96,19 @@ export const InputPrompt = () => {
 					</Text>
 				)}
 			</Box>
-			{picker && (
-				<PickerMenu
-					title={picker.title}
-					options={picker.options}
-					onSelect={picker.onSelect}
-					onClose={() => setPicker(null)}
-				/>
-			)}
-			{commandmenu && !picker && (
-				<CommandMenu
-					inputText={value}
-					onClose={closeMenu}
-					onOpenPicker={openPicker}
-					exit={exit}
+			{commandmenu && <CommandMenu inputText={value} onSelect={onHandleSelect} />}
+			{submenu && (
+				<Submenu
+					title={submenu.title}
+					options={submenu.options}
+					onSelect={(v) => { submenu.onSelect(v.label); setSubmenu(null) }}
+					onCancel={() => { setSubmenu(null) }}
+					filterText={value}
 				/>
 			)}
 
 			<Box paddingX={1}>
-				<Text dimColor>{model}</Text>
+				<Text dimColor> opus 4.5 </Text>
 				<Text>• </Text>
 				<Text bold>app/web/</Text>
 			</Box>

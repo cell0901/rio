@@ -1,37 +1,17 @@
-export type PickerOption = {
-	label: string
-	value: string
-}
-
-export type CommandContext = {
-	show: (message: string, type: "info" | "success" | "error") => void
-	closeMenu: () => void
-	openPicker: (title: string, options: PickerOption[], onSelect: (value: string) => void) => void
-	exit: () => void
-}
-
-export type Command = {
-	name: string
-	description: string
-	action?: (ctx: CommandContext) => void
-}
-
-const MODEL_OPTIONS: PickerOption[] = [
-	{ label: "opus 4.5", value: "opus-4.5" },
-	{ label: "sonnet 4", value: "sonnet-4" },
-	{ label: "haiku 3.5", value: "haiku-3.5" },
-]
+import { MODEL_OPTIONS } from "./models.js";
+import { Command } from "./types.js";
 
 export const commands: Command[] = [
 	{
 		name: "/model",
 		description: "Select model provider",
-		action: ({ closeMenu, openPicker, show }) => {
-			closeMenu()
-			openPicker("Select model", MODEL_OPTIONS, value => {
-				show(`Model set to ${value}`, "success")
-			})
-		},
+		action: {
+			kind: "submenu", options: MODEL_OPTIONS, onSelect(value) {
+				// do something with the value selected
+				// also set the current model in the ui to this
+				console.log("value selected", value)
+			},
+		}
 	},
 	{
 		name: "/login",
@@ -40,7 +20,10 @@ export const commands: Command[] = [
 	{
 		name: "/quit",
 		description: "Exit the session",
-		action: ({ exit }) => exit(),
+		action: {
+			kind: "run",
+			run: () => { }
+		}
 	},
 	{
 		name: "/mcp",
@@ -55,3 +38,5 @@ export const commands: Command[] = [
 		description: "change session",
 	},
 ]
+
+
