@@ -35,6 +35,15 @@ export function Submenu({ title: _title, options, onSelect, onCancel, filterText
 		}
 	})
 
+
+	if (filteredOptions.length === 0) {
+		return (
+			<Box borderStyle="round" height={3} borderColor="gray" paddingX={1}>
+				<Text color="gray">No matching models</Text>
+			</Box>
+		)
+	}
+
 	return (
 		<Box height={10} flexDirection="column" >
 			<ScrollList ref={listRef} selectedIndex={selectedIndex}>

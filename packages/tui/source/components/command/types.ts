@@ -1,3 +1,4 @@
+
 export type SubMenuOption = {
 	label: string,
 	value: string
@@ -5,12 +6,20 @@ export type SubMenuOption = {
 
 export type CommandContext = {
 	exit: () => void
-	clearChat: () => void
-	setModel: (id: string) => void
+	// clearChat: () => void
+	// setModel: (id: string) => void
 	// add more for particulate command like open file toggle them or settings etc
+	openLogin: () => void
 }
 
-export type CommandAction = { kind: "run"; run: () => void } | { kind: "submenu"; options: SubMenuOption[]; onSelect: (value: string) => void }
+export type CommandAction = {
+	kind: "run";
+	run: () => void
+} | {
+	kind: "submenu";
+	options: SubMenuOption[];
+	onSelect: (value: string) => void
+}
 
 export type Command = {
 	name: string

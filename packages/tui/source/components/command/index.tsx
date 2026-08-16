@@ -5,10 +5,10 @@ import { filterCommands } from "./filter-command.js"
 import { Command } from "./types.js"
 
 
-export function CommandMenu({ inputText, onSelect }: { inputText: string, onSelect: (item: Command) => void }) {
+export function CommandMenu({ inputText, commands, onSelect }: { inputText: string, commands: Command[], onSelect: (item: Command) => void }) {
 	const listRef = useRef(null)
 	const [selectedIndex, setSelectedIndex] = useState(0)
-	const items = filterCommands(inputText)
+	const items = filterCommands(inputText, commands) // the commands and inputText get propagated everytime something is typed
 
 	const maxNameLength = Math.max(...items.map(item => item.name.length), 0) + 8
 
