@@ -5,6 +5,7 @@ import { Submenu } from './SubMenu.js';
 import { Command, SubMenuOption } from './command/types.js';
 import { allcommands } from './command/commands.js';
 import { LoginPrompt } from './LoginPrompt.js';
+import { saveApiKey } from './utils/auth.js';
 
 const PROMPT = "> "
 
@@ -21,7 +22,13 @@ export const InputPrompt = () => {
 		exit,
 		openLogin: () => setLoginOpen(true)
 	}
-	const temp = useMemo(() =>
+
+	async function handleOnLoginSubmit(apikey: string) {
+		await saveApiKey(apikey)
+		setLoginOpen(false)
+	}
+
+	const temp = useMemo(() => // gets all the commands
 		allcommands(context)
 		, [exit, loginOpen])
 
@@ -81,11 +88,7 @@ export const InputPrompt = () => {
 	if (loginOpen) {
 		return (
 			<LoginPrompt
-				onSubmit={(_apiKey) => {
-					// save api key in. json
-					console.log(_apiKey)
-					setLoginOpen(false)
-				}}
+				onSubmit={handleOnLoginSubmit}
 				onCancel={() => setLoginOpen(false)}
 			/>
 		)
@@ -123,11 +126,7 @@ export const InputPrompt = () => {
 			)}
 			{loginOpen && (
 				<LoginPrompt
-					onSubmit={(_val) => {
-						// save the api key in .json
-						console.log(_val)
-						setLoginOpen(false)
-					}}
+					onSubmit={handleOnLoginSubmit}
 					onCancel={() => {
 						setLoginOpen(false)
 					}}

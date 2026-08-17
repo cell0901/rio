@@ -22,7 +22,7 @@ export function allcommands(ctx: CommandContext): Command[] { // so we get all t
 			description: "Configure provider",
 			action: {
 				kind: "run",
-				run: () => ctx.openLogin()
+				run: () => ctx.openLogin() // this will run the command
 			}
 		},
 		{
@@ -34,17 +34,18 @@ export function allcommands(ctx: CommandContext): Command[] { // so we get all t
 			}
 		},
 		{
-			name: "/clear",
-			description: "Clear chat",
+			name: "/session",
+			description: "Current session info",
+		},
+		{
+			name: "/new",
+			description: "Start a new session"
 		},
 		{
 			name: "/settings",
 			description: "change settings",
 		},
-		{
-			name: "/session",
-			description: "change session",
-		},
+
 	]
 }
 

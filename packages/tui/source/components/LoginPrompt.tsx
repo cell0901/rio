@@ -6,7 +6,7 @@ export function LoginPrompt({ onSubmit, onCancel }: { onSubmit: (val: string) =>
 
 	useInput((input, key) => {
 		if (key.return) {
-			onSubmit(apikey)
+			onSubmit(apikey) // call teh callback function in InputPrompt
 			return
 		}
 		if (key.escape) {
