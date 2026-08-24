@@ -13,7 +13,7 @@ export function allcommands(ctx: CommandContext): Command[] { // so we get all t
 				onSelect: (_v: any) => {
 					// do something with the value selected
 					// also set the current model in the ui to this
-					console.log(" thiehre ")
+					console.log("model", _v)
 				},
 			}
 		},
@@ -39,7 +39,11 @@ export function allcommands(ctx: CommandContext): Command[] { // so we get all t
 		},
 		{
 			name: "/new",
-			description: "Start a new session"
+			description: "Start a new session", // start a new session with random id. save it to particular date and time folder nested
+			action: {
+				kind: "run",
+				run: () => ctx.newSession()
+			}
 		},
 		{
 			name: "/settings",

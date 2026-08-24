@@ -20,7 +20,8 @@ export const InputPrompt = () => {
 	// we pass all the context(functions) required by those commands to run
 	const context = {
 		exit,
-		openLogin: () => setLoginOpen(true)
+		openLogin: () => setLoginOpen(true),
+		newSession: () => console.log("hithere")
 	}
 
 	async function handleOnLoginSubmit(apikey: string) {
