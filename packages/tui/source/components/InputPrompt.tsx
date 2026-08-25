@@ -4,34 +4,28 @@ import { CommandMenu } from './command/index.js';
 import { Submenu } from './SubMenu.js';
 import { Command, SubMenuOption } from './command/types.js';
 import { allcommands } from './command/commands.js';
-import { LoginPrompt } from './LoginPrompt.js';
-import { saveApiKey } from './utils/auth.js';
+
+import { SessionStore } from 'core/session/SessionStore';
+import { InputHistory } from './InputHistory.js';
 
 const PROMPT = "> "
 
-export const InputPrompt = () => {
+export const InputPrompt = ({ session, context, currentModel }: { session: SessionStore, context: any, currentModel: string }) => {
 	const { exit } = useApp();
 	const [value, setValue] = useState('');
 	const [commandmenu, setCommandMenu] = useState(false)
 	const [submenu, setSubmenu] = useState<{ title: string, options: SubMenuOption[], onSelect: (value: string) => void } | null>(null)
-	const [loginOpen, setLoginOpen] = useState(false)
+	const [inputHistory, setInputHistory] = useState(false)
+	const [inputHistoryValue, setInputHistoryValue] = useState('')
+
 
 	//so Input Prompt file mainly becomes things to wire up
 	// we pass all the context(functions) required by those commands to run
-	const context = {
-		exit,
-		openLogin: () => setLoginOpen(true),
-		newSession: () => console.log("hithere")
-	}
 
-	async function handleOnLoginSubmit(apikey: string) {
-		await saveApiKey(apikey)
-		setLoginOpen(false)
-	}
 
 	const temp = useMemo(() => // gets all the commands
 		allcommands(context)
-		, [exit, loginOpen])
+		, [context])
 
 	function onHandleSelect(item: Command) {
 		setCommandMenu(false) // close the commandmenu
@@ -52,9 +46,25 @@ export const InputPrompt = () => {
 		}
 
 		if (key.return) {
-			if (commandmenu) setCommandMenu(false)
+			if (commandmenu) {
+				setCommandMenu(false)
+				return
+			}
+
+			if (value.trim().length > 0) {
+				console.log("return with some input")
+				if (!session.firstMessage) {
+					console.log("first message")
+				}
+				setInputHistoryValue(value)
+				setInputHistory(true)
+				setValue('')
+				return
+			}
 			return
 		}
+
+
 		if (input == "/" && !submenu) {
 			setCommandMenu(true)
 			setValue(prev => prev + input)
@@ -83,20 +93,12 @@ export const InputPrompt = () => {
 		if (input && !key.ctrl && !key.meta) {
 			setValue(prev => prev + input)
 		}
-	}, { isActive: !loginOpen }) // this hook is only active if loginOpen is not opened
+	},) // this hook is only active if loginOpen is not opened
 
-
-	if (loginOpen) {
-		return (
-			<LoginPrompt
-				onSubmit={handleOnLoginSubmit}
-				onCancel={() => setLoginOpen(false)}
-			/>
-		)
-	}
 
 	return (
 		<>
+			{inputHistory && <InputHistory prompt={inputHistoryValue} />}
 			<Box
 				borderStyle="round"
 				borderLeft={false}
@@ -125,17 +127,9 @@ export const InputPrompt = () => {
 					filterText={value}
 				/>
 			)}
-			{loginOpen && (
-				<LoginPrompt
-					onSubmit={handleOnLoginSubmit}
-					onCancel={() => {
-						setLoginOpen(false)
-					}}
-				/>
-			)}
 
 			<Box paddingX={1}>
-				<Text dimColor> opus 4.5 </Text>
+				<Text dimColor> {currentModel} </Text>
 				<Text>• </Text>
 				<Text bold>app/web/</Text>
 			</Box>

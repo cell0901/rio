@@ -10,10 +10,11 @@ export function allcommands(ctx: CommandContext): Command[] { // so we get all t
 			action: {
 				kind: "submenu",
 				options: MODEL_OPTIONS,
-				onSelect: (_v: any) => {
+				onSelect: (v: any) => {
 					// do something with the value selected
 					// also set the current model in the ui to this
-					console.log("model", _v)
+					console.log("model", v)
+					ctx.selectModel(v)
 				},
 			}
 		},

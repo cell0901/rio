@@ -11,6 +11,7 @@ export type CommandContext = {
 	// add more for particulate command like open file toggle them or settings etc
 	openLogin: () => void
 	newSession: () => void
+	selectModel: (v: string) => void
 }
 
 export type CommandAction = {
