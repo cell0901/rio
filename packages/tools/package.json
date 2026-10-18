@@ -3,6 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "exports": {
+    "./src/*": "./src/*"
+  },
   "dependencies": {
     "ai": "workspace:*"
   },

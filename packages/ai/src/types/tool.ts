@@ -1,4 +1,4 @@
-import type { JSONSchema } from "openai/lib/jsonschema.mjs";
+import type OpenAI from "openai";
 
 export type ToolResult = {
   content: string; // what llm sees
@@ -7,6 +7,6 @@ export type ToolResult = {
 export type Tool = {
   name: string;
   description: string;
-  parameters: JSONSchema;
+  parameters: OpenAI.FunctionParameters;
   execute(args: Record<string, unknown>): Promise<ToolResult>; // should return some result of this tool call. currently its string
 }
