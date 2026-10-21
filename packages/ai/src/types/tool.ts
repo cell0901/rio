@@ -2,7 +2,7 @@ import type OpenAI from "openai";
 
 export type ToolResult = {
   content: string; // what llm sees
-  isError?: boolean;
+  isError: boolean;
 }
 export type Tool = {
   name: string;

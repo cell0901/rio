@@ -46,14 +46,14 @@ export function createOpenAiCompatible(name: string, apiKey: string, baseUrl: st
       const chat = toOpenAi(messages);
       const stream = await openai.chat.completions.create({
         model: model,
-        messages: system ? [{ "role": "assistant", content: system }, ...chat] : chat, // if system prompt exist thne append before any message.
+        messages: system ? [{ "role": "system", content: system }, ...chat] : chat, // if system prompt exist thne append before any message.
         stream: true,
         tools: tools ? tools.map((t) => ({
           type: "function" as const,
           function: { name: t.name, description: t.description, parameters: t.parameters }
         })) : undefined,
         stream_options: { include_usage: true },
-        max_completion_tokens: 1024
+        max_completion_tokens: 8192
       });
 
       let text = "";
@@ -79,7 +79,7 @@ export function createOpenAiCompatible(name: string, apiKey: string, baseUrl: st
             name: tool_call.function?.name ?? "", // for the first time tool call there should be name and args
             args: ""
           }
-          calls[tool_call.index]!.args += tool_call.function?.arguments
+          calls[tool_call.index]!.args += tool_call.function?.arguments ?? ""
         }
 
         if (chunk.choices[0]?.finish_reason === "length") { // if this check ran means the chat stream is finished

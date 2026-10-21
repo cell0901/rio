@@ -1,3 +1,4 @@
 export { readTool } from "./readTool.ts"
 export { writeTool } from "./writeTool.ts"
-
+export { editTool } from "./editTool.ts"
+export { bashTool } from "./bashTool.ts"

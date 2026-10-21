@@ -7,7 +7,7 @@ import { writeFile } from "node:fs/promises";
 // for adding content to particulate place in between content of a file we use edit tool
 export const writeTool: Tool = {
   name: "write",
-  description: "Write content to a file. Creates the file if it doesn't exist, overwrites if it does.",
+  description: "Write content to a file. Creates the file if it doesn't exist, overwrites if it does. Automatically creates parent directories.",
   parameters: {
     type: "object",
     properties: {
@@ -24,12 +24,19 @@ export const writeTool: Tool = {
   },
 
   async execute(args) {
-    const fullPath = resolve(process.cwd(), String(args.path));
+    if (typeof args.path !== "string" || typeof args.content !== "string") {
+      return {
+        content: "Invalid arguments: path and content must be strings.",
+        isError: true,
+      };
+    }
+
+    const fullPath = resolve(process.cwd(), args.path);
     await mkdir(dirname(fullPath), { recursive: true });
 
-    await writeFile(fullPath, String(args.content), { encoding: "utf8" })
+    await writeFile(fullPath, args.content, { encoding: "utf8" })
 
-    return { content: "Wrote to file" }
+    return { content: "Wrote to file", isError: false }
   },
 
 }

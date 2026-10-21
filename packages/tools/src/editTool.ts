@@ -48,6 +48,6 @@ export const editTool: Tool = {
     // now replace the old string with new string
     const newContent = contents.replace(args.old_string as string, args.new_string as string);
     await writeFile(fullPath, newContent, "utf8")
-    return { content: `Edited ${args.path}` }
+    return { content: `Edited ${args.path}`, isError: false }
   },
 }

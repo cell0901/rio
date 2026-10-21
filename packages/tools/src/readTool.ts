@@ -17,6 +17,6 @@ export const readTool: Tool = {
   },
   async execute(args) {
     const contents = await readFile(path.resolve(process.cwd(), String(args.path)), "utf8")
-    return { content: contents }
+    return { content: contents, isError: false }
   },
 }

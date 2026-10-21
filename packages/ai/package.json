@@ -5,7 +5,8 @@
   "private": true,
   "exports": {
     "./types/tool": "./src/types/tool.ts",
-    "./types/provider": "./src/types/provider.ts"
+    "./types/provider": "./src/types/provider.ts",
+    "./providers": "./src/providers/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
