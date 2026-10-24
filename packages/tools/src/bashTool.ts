@@ -138,7 +138,6 @@ export const bashTool: Tool = {
         isError: true
       }
     };
-
     const res = truncateOutput(await runBash(args.command, args.timeout));
     return {
       content: res,

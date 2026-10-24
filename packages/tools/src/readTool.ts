@@ -16,7 +16,13 @@ export const readTool: Tool = {
     required: ["path"]
   },
   async execute(args) {
-    const contents = await readFile(path.resolve(process.cwd(), String(args.path)), "utf8")
+    if (typeof args.path !== "string") {
+      return {
+        content: "Invalid argument: path must be strings.",
+        isError: true,
+      };
+    }
+    const contents = await readFile(path.resolve(process.cwd(), args.path), "utf8")
     return { content: contents, isError: false }
   },
 }
